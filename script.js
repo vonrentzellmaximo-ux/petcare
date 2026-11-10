@@ -226,10 +226,7 @@ let appVue2 = new Vue({
         },
         // la tarjeta del formulario se va escribiendo mientras completás los campos
         actualizar_ticket: function(evento) {
-            // En un <select> el navegador dispara "input" y después "change", pero v-model
-            // recién guarda el valor en "change". Si redibujáramos en "input", Vue pisaría
-            // la opción elegida con el valor viejo. Por eso los select se actualizan solo en "change".
-            if (evento && evento.type === "input" && evento.target.tagName === "SELECT") return;
+            // Los valores de los <select> se sincronizan con v-model y no deben cortarse al dispararse "input".
             let vet = buscar_vet(this.veterinario);
             this.ticket_form = {
                 numero: numero_turno(this.siguiente_turno),
