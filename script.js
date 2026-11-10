@@ -224,13 +224,11 @@ let appVue2 = new Vue({
                 reservado: false
             };
         },
-        onFormularioInput: function(evento) {
-            if (evento && evento.target && evento.target.tagName === "SELECT") return;
-            this.actualizar_ticket(evento);
-        },
         // la tarjeta del formulario se va escribiendo mientras completás los campos
         actualizar_ticket: function(evento) {
-            if (evento && evento.type === "input" && evento.target.tagName === "SELECT") return;
+            // Importante: si el cambio viene de un <select>, ignoramos el input previo del browser
+            // y dejamos que Vue termine de actualizar v-model antes de volver a dibujar la tarjeta.
+            if (evento && evento.type === "input" && evento.target && evento.target.tagName === "SELECT") return;
             let vet = buscar_vet(this.veterinario);
             this.ticket_form = {
                 numero: numero_turno(this.siguiente_turno),
@@ -431,8 +429,7 @@ let appVue2 = new Vue({
                 : "No hay turnos con ese filtro.";
         },
         cancelar_turno: function(id) {
-            let turno = this.turnos.find(t => t.id === id);
-            let d = this.datos_de_turno(turno);
+            let turno = this.turnos.find(t => t.id === id);\n            let d = this.datos_de_turno(turno);
             if (!confirm("¿Cancelar el turno de " + d.mascota + " del " + d.cuando + "?")) return;
             this.turnos = this.turnos.filter(t => t.id !== id);
             this.guardar_estado();
