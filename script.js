@@ -224,10 +224,12 @@ let appVue2 = new Vue({
                 reservado: false
             };
         },
+        onFormularioInput: function(evento) {
+            if (evento && evento.target && evento.target.tagName === "SELECT") return;
+            this.actualizar_ticket(evento);
+        },
         // la tarjeta del formulario se va escribiendo mientras completás los campos
         actualizar_ticket: function(evento) {
-            // En los <select>, Vue actualiza v-model con "change". Ignoramos el "input"
-            // previo para evitar que la vista previa redibuje el select con el valor anterior.
             if (evento && evento.type === "input" && evento.target.tagName === "SELECT") return;
             let vet = buscar_vet(this.veterinario);
             this.ticket_form = {
