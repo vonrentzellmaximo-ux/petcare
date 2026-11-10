@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PetCare, turnos veterinarios digitales</title>
+    <meta name="description" content="PetCare, la plataforma para gestionar tus turnos con veterinarios. Elegí veterinario, día y horario para tu mascota.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+<div id="app" v-cloak>
+
+    <header class="cabecera">
+        <div class="ancho cabecera-interna">
+            <a href="#inicio" class="logo" aria-label="PetCare, ir al inicio">
+                <img src="logo-petcare.png" alt="PetCare, turnos veterinarios digitales" width="151" height="60">
+            </a>
+            <nav aria-label="Principal">
+                <ul class="menu">
+                    <li><a href="#equipo">Quién atiende</a></li>
+                    <li><a href="#turno">Sacar turno</a></li>
+                    <li><a href="#agenda">Agenda</a></li>
+                    <li><a href="#espera">Sala de espera</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="inicio">
+
+        <section class="hero ancho">
+            <div class="chapa">
+                <p class="chapa-rotulo">Turnos veterinarios digitales</p>
+                <h1>Sacá turno para tu mascota en un minuto.</h1>
+                <p class="chapa-texto">La plataforma para gestionar tus turnos con veterinarios. Elegís con quién querés atenderte, el día y la hora, y el turno queda anotado en la agenda en el momento.</p>
+                <div class="chapa-botones">
+                    <a href="#turno" class="boton">Sacar turno</a>
+                    <a href="#agenda" class="enlace-claro">Ver la agenda</a>
+                </div>
+            </div>
+
+            <div class="hero-ticket">
+                <div class="ticket">
+                    <div class="ticket-cabeza">
+                        <span class="ticket-marca">PetCare</span>
+                        <span class="ticket-numero">Turno Nº {{ ticket_hero.numero }}</span>
+                    </div>
+                    <dl>
+                        <dt>Mascota</dt><dd>{{ ticket_hero.mascota }}</dd>
+                        <dt>Dueño/a</dt><dd>{{ ticket_hero.dueno }}</dd>
+                        <dt>Atiende</dt><dd>{{ ticket_hero.vet }}</dd>
+                        <dt>Cuándo</dt><dd>{{ ticket_hero.cuando }}</dd>
+                        <dt>Motivo</dt><dd>{{ ticket_hero.motivo }}</dd>
+                    </dl>
+                    <div class="ticket-pie">
+                        <span>Si no podés venir, avisá con tiempo.</span>
+                        <span class="barras" aria-hidden="true"></span>
+                    </div>
+                </div>
+                <p class="nota">Así queda tu turno. Traé el carnet de vacunas, por favor.</p>
+            </div>
+        </section>
+
+        <p class="ancho estado-local" :class="{ abierto: local_abierto }">{{ local_texto }}</p>
+
+        <section class="ancho" id="equipo">
+            <div class="pizarra">
+                <h2 class="pizarra-titulo">Hoy atienden</h2>
+                <ul class="vets">
+                    <li v-for="v in veterinarios" :key="v.id">
+                        <div class="vet-texto">
+                            <div class="vet-linea">
+                                <span class="vet-nombre">{{ v.nombre }}</span>
+                                <span class="vet-puntos" aria-hidden="true"></span>
+                                <span class="vet-esp">{{ v.especialidad }}</span>
+                            </div>
+                            <p class="vet-detalle">{{ v.detalle }}</p>
+                        </div>
+                        <button type="button" class="btn-chico" @click="elegir_veterinario(v.id)">Pedir turno con {{ v.nombre }}</button>
+                    </li>
+                </ul>
+                <p class="pizarra-pie">Lunes a viernes de 9 a 13 y de 15 a 19. Sábados de 9 a 13. Domingos cerramos.</p>
+            </div>
+        </section>
+
+        <section class="ancho como" aria-labelledby="titulo-como">
+            <h2 id="titulo-como">Cómo funciona</h2>
+            <ol class="pasos">
+                <li><strong>Elegís veterinario y horario.</strong> Los horarios que ya están ocupados aparecen marcados, así no hay sorpresas.</li>
+                <li><strong>Completás tus datos y los de tu mascota.</strong> Si ya vinieron antes, con el DNI te reconocemos.</li>
+                <li><strong>Listo.</strong> El turno aparece en la agenda. Si no podés venir, lo cancelás ahí mismo.</li>
+            </ol>
+        </section>
+
+        <section class="ancho" id="turno" aria-labelledby="titulo-turno">
+            <h2 id="titulo-turno">Sacar un turno</h2>
+            <p class="bajada">Todo lo que tipeás a la derecha se va escribiendo en la tarjeta, como en el mostrador.</p>
+
+            <div class="turno-layout">
+                <form class="formulario" novalidate @submit.prevent="reservar_turno" @input="actualizar_ticket" @change="actualizar_ticket">
+
+                    <fieldset>
+                        <legend>Tus datos</legend>
+                        <div class="fila-campos">
+                            <div class="campo campo-ancho">
+                                <label for="nombre">Nombre y apellido</label>
+                                <input type="text" id="nombre" v-model="nombre" autocomplete="name" placeholder="Ej.: Lucía Fernández" :aria-invalid="errores.nombre ? 'true' : null">
+                                <small class="error">{{ errores.nombre }}</small>
+                            </div>
+                            <div class="campo">
+                                <label for="dni">DNI</label>
+                                <input type="text" id="dni" v-model="dni" inputmode="numeric" maxlength="8" placeholder="Sin puntos" :aria-invalid="errores.dni ? 'true' : null">
+                                <small class="error">{{ errores.dni }}</small>
+                            </div>
+                        </div>
+                        <div class="fila-campos">
+                            <div class="campo">
+                                <label for="email">Email (opcional)</label>
+                                <input type="email" id="email" v-model="email" autocomplete="email" placeholder="lucia@mail.com" :aria-invalid="errores.email ? 'true' : null">
+                                <small class="error">{{ errores.email }}</small>
+                            </div>
+                            <div class="campo">
+                                <label for="telefono">Teléfono (opcional)</label>
+                                <input type="tel" id="telefono" v-model="telefono" autocomplete="tel" placeholder="11 5555 1234" :aria-invalid="errores.telefono ? 'true' : null">
+                                <small class="error">{{ errores.telefono }}</small>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Tu mascota</legend>
+                        <div class="fila-campos">
+                            <div class="campo campo-ancho">
+                                <label for="mascota">Nombre</label>
+                                <input type="text" id="mascota" v-model="mascota" placeholder="Ej.: Mora" :aria-invalid="errores.mascota ? 'true' : null">
+                                <small class="error">{{ errores.mascota }}</small>
+                            </div>
+                            <div class="campo">
+                                <label for="especie">Especie</label>
+                                <select id="especie" v-model="especie" :aria-invalid="errores.especie ? 'true' : null">
+                                    <option value="">Elegí una</option>
+                                    <option v-for="e in especies" :key="e" :value="e">{{ e }}</option>
+                                </select>
+                                <small class="error">{{ errores.especie }}</small>
+                            </div>
+                            <div class="campo campo-corto">
+                                <label for="edad">Edad (años)</label>
+                                <input type="number" id="edad" v-model="edad" min="0" max="30" placeholder="Ej.: 3" :aria-invalid="errores.edad ? 'true' : null">
+                                <small class="error">{{ errores.edad }}</small>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>El turno</legend>
+                        <div class="fila-campos">
+                            <div class="campo campo-ancho">
+                                <label for="veterinario">Veterinario</label>
+                                <select id="veterinario" v-model="veterinario" @change="hora = ''" :aria-invalid="errores.veterinario ? 'true' : null">
+                                    <option value="">Elegí uno</option>
+                                    <option v-for="v in veterinarios" :key="v.id" :value="v.id">{{ v.nombre }} ({{ v.especialidad }})</option>
+                                </select>
+                                <small class="error">{{ errores.veterinario }}</small>
+                            </div>
+                            <div class="campo">
+                                <label for="fecha">Día</label>
+                                <input type="date" id="fecha" v-model="fecha" :min="fecha_min" :max="fecha_max" @change="hora = ''" :aria-invalid="errores.fecha ? 'true' : null">
+                                <small class="error">{{ errores.fecha }}</small>
+                            </div>
+                            <div class="campo">
+                                <label for="hora">Hora</label>
+                                <select id="hora" v-model="hora" :disabled="!hora_habilitada()" :aria-invalid="errores.hora ? 'true' : null">
+                                    <option value="">{{ texto_hora_vacia() }}</option>
+                                    <option v-for="h in opciones_hora()" :key="h.valor" :value="h.valor" :disabled="h.ocupada">{{ h.ocupada ? h.valor + ' (ocupado)' : h.valor }}</option>
+                                </select>
+                                <small class="error">{{ errores.hora }}</small>
+                            </div>
+                        </div>
+                        <div class="fila-campos">
+                            <div class="campo campo-ancho">
+                                <label for="motivo">Motivo de la consulta</label>
+                                <input type="text" id="motivo" v-model="motivo" maxlength="80" placeholder="Ej.: vacuna anual, se rasca mucho una oreja" :aria-invalid="errores.motivo ? 'true' : null">
+                                <small class="error">{{ errores.motivo }}</small>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <div class="envio">
+                        <button type="submit" class="boton boton-form">Reservar turno</button>
+                        <p class="mensaje" :class="mensaje_tipo" role="status" aria-live="polite">{{ mensaje }}</p>
+                    </div>
+                </form>
+
+                <aside class="lado-ticket" aria-label="Vista previa de tu turno">
+                    <div class="ticket" :class="{ reservado: ticket_form.reservado }">
+                        <div class="sello" aria-hidden="true">Reservado</div>
+                        <div class="ticket-cabeza">
+                            <span class="ticket-marca">PetCare</span>
+                            <span class="ticket-numero">Turno Nº {{ ticket_form.numero }}</span>
+                        </div>
+                        <dl>
+                            <dt>Mascota</dt><dd>{{ ticket_form.mascota }}</dd>
+                            <dt>Dueño/a</dt><dd>{{ ticket_form.dueno }}</dd>
+                            <dt>Atiende</dt><dd>{{ ticket_form.vet }}</dd>
+                            <dt>Cuándo</dt><dd>{{ ticket_form.cuando }}</dd>
+                            <dt>Motivo</dt><dd>{{ ticket_form.motivo }}</dd>
+                        </dl>
+                        <div class="ticket-pie">
+                            <span>Si no podés venir, avisá con tiempo.</span>
+                            <span class="barras" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <section class="ancho" id="agenda" aria-labelledby="titulo-agenda">
+            <h2 id="titulo-agenda">Agenda de la clínica</h2>
+            <div class="filtros">
+                <div class="campo">
+                    <label for="filtro-vet">Veterinario</label>
+                    <select id="filtro-vet" v-model="filtro_vet">
+                        <option value="">Todos</option>
+                        <option v-for="v in veterinarios" :key="v.id" :value="v.id">{{ v.nombre }}</option>
+                    </select>
+                </div>
+                <div class="campo campo-ancho">
+                    <label for="buscar">Buscar por mascota o dueño/a</label>
+                    <input type="search" id="buscar" v-model="buscar" placeholder="Ej.: Mora">
+                </div>
+                <p class="contador" aria-live="polite">{{ contador_texto() }}</p>
+            </div>
+
+            <div class="tabla-caja">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Cuándo</th>
+                            <th scope="col">Mascota</th>
+                            <th scope="col">Dueño/a</th>
+                            <th scope="col">Veterinario</th>
+                            <th scope="col">Motivo</th>
+                            <th scope="col"><span class="solo-lectores">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-if="turnos_visibles().length === 0">
+                            <td colspan="6" class="vacio">{{ texto_vacio() }}</td>
+                        </tr>
+                        <tr v-for="t in turnos_visibles()" :key="t.id" :class="{ pasado: t.pasado }">
+                            <td class="td-cuando">{{ t.fecha_texto }} {{ t.hora }}<span class="td-chico">{{ t.dia }}</span></td>
+                            <td>{{ t.mascota }}<span class="td-chico">{{ t.detalle_mascota }}</span></td>
+                            <td>{{ t.dueno }}</td>
+                            <td>{{ t.vet }}</td>
+                            <td>{{ t.motivo }}</td>
+                            <td><button type="button" class="btn-cancelar" :aria-label="'Cancelar el turno de ' + t.mascota" @click="cancelar_turno(t.id)">Cancelar</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="ancho espera" id="espera" aria-labelledby="titulo-espera">
+            <div class="espera-texto">
+                <h2 id="titulo-espera">Sala de espera</h2>
+                <p>Si llegaste temprano, acá tenés un gato al azar. No es de ninguno de nuestros pacientes, pero igual se porta bien.</p>
+                <button type="button" class="boton boton-sec" @click="traer_gato" :disabled="gato_cargando">Otro gato</button>
+                <p class="mensaje" role="status" aria-live="polite">{{ gato_mensaje }}</p>
+            </div>
+            <figure class="polaroid">
+                <img v-if="gato_url" :src="gato_url" alt="Un gato al azar mirando a cámara" width="320" height="320">
+                <div v-else class="foto-vacia"></div>
+                <figcaption>Visita de hoy</figcaption>
+            </figure>
+        </section>
+
+    </main>
+
+    <footer class="pie">
+        <div class="ancho pie-interno">
+            <div class="pie-logo">
+                <img src="logo-petcare.png" alt="PetCare, turnos veterinarios digitales" width="170" height="67">
+            </div>
+            <div class="pie-datos">
+                <p>Sede central: Ciudad de Buenos Aires, Argentina</p>
+                <p>Tel. <a href="tel:+5491125869402">+54 911 2586-9402</a></p>
+                <p><a href="mailto:petcareservice@gmail.com">petcareservice@gmail.com</a></p>
+                <p>www.petcare.com.ar</p>
+                <p class="pie-chico">&copy; {{ anio }} PetCare. Proyecto de Programación Web.</p>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.7.16/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

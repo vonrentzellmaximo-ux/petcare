@@ -1,0 +1,347 @@
+/* ============ Base ============ */
+:root {
+    /* paleta tomada de la presentación */
+    --arena: #d2c4b5;        /* fondo de las diapositivas */
+    --junta: #c7b8a8;        /* junta de baldosa, apenas más oscura que el fondo */
+    --marron: #6b5347;       /* títulos "PET CARE" */
+    --marron-osc: #4a3a31;
+    --terracota: #c98b80;    /* la "C" de PetCare */
+    --durazno: #efd3c4;      /* tarjetas claras */
+    --durazno-osc: #e6c6b1;
+    --malva: #aa897d;        /* cajas del modelo de negocios */
+    --crema: #faf4ef;
+    --tinta: #3a302b;
+    --sello: #b4483c;
+    --verde: #4d7a57;
+}
+
+* { box-sizing: border-box; }
+
+[v-cloak] { display: none; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+body {
+    margin: 0;
+    font-family: "Atkinson Hyperlegible", Verdana, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--tinta);
+    background-color: var(--arena);
+    /* juntas de baldosa, bien suaves */
+    background-image:
+        linear-gradient(var(--junta) 1px, transparent 1px),
+        linear-gradient(90deg, var(--junta) 1px, transparent 1px);
+    background-size: 64px 64px;
+}
+
+h1, h2, legend {
+    font-family: "Alfa Slab One", Georgia, serif;
+    font-weight: 400;
+}
+
+h2 { font-size: 2rem; line-height: 1.15; margin: 0 0 12px 0; }
+
+a { color: var(--marron); }
+
+.ancho { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+section.ancho { padding-top: 64px; padding-bottom: 8px; }
+
+:focus-visible { outline: 3px solid var(--terracota); outline-offset: 3px; box-shadow: 0 0 0 5px var(--tinta); }
+
+.solo-lectores {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ============ Cabecera ============ */
+.cabecera {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--arena);
+    border-bottom: 2px solid var(--tinta);
+}
+
+.cabecera-interna {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 8px 24px; padding-top: 10px; padding-bottom: 10px;
+}
+
+.logo { display: flex; align-items: center; text-decoration: none; }
+.logo img { display: block; height: 60px; width: auto; }
+
+.menu { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 22px; }
+.menu a { color: var(--tinta); text-decoration: none; font-weight: 700; padding: 4px 0; border-bottom: 3px solid transparent; }
+.menu a:hover { border-bottom-color: var(--terracota); }
+
+/* ============ Hero ============ */
+.hero {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 48px 56px;
+    padding-top: 48px; padding-bottom: 24px;
+}
+
+/* chapa esmaltada con tornillos en las esquinas */
+.chapa {
+    flex: 1.5 1 420px;
+    position: relative;
+    color: var(--crema);
+    background-color: var(--marron);
+    background-image:
+        radial-gradient(circle at 20px 20px, #3b2d26 0 4px, transparent 5px),
+        radial-gradient(circle at calc(100% - 20px) 20px, #3b2d26 0 4px, transparent 5px),
+        radial-gradient(circle at 20px calc(100% - 20px), #3b2d26 0 4px, transparent 5px),
+        radial-gradient(circle at calc(100% - 20px) calc(100% - 20px), #3b2d26 0 4px, transparent 5px);
+    border: 2px solid var(--tinta);
+    border-radius: 22px;
+    padding: 48px 44px 40px 44px;
+    box-shadow: inset 0 0 0 8px var(--marron), inset 0 0 0 11px var(--crema);
+}
+
+.chapa-rotulo { margin: 0 0 8px 0; font-weight: 700; color: var(--durazno); font-size: 1.05rem; }
+
+.chapa h1 { margin: 0 0 18px 0; font-size: clamp(2.1rem, 5vw, 3.2rem); line-height: 1.08; }
+
+.chapa-texto { margin: 0 0 28px 0; max-width: 46ch; font-size: 1.1rem; }
+
+.chapa-botones { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 26px; }
+
+.enlace-claro { color: var(--crema); font-weight: 700; }
+
+.boton {
+    display: inline-block;
+    background: var(--terracota);
+    color: var(--tinta);
+    font: inherit; font-weight: 700;
+    padding: 12px 24px;
+    border: 2px solid var(--tinta);
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.boton:hover { background: var(--crema); }
+.boton:active { transform: translateY(2px); }
+.boton:disabled { opacity: .6; cursor: wait; }
+
+.boton-sec { background: var(--crema); }
+.boton-sec:hover { background: var(--terracota); }
+
+.hero-ticket { flex: 1 1 290px; max-width: 360px; margin: 0 auto; }
+
+.nota {
+    font-family: "Caveat", cursive; font-size: 1.6rem; line-height: 1.15;
+    margin: 28px 0 0 18px; max-width: 16em;
+    transform: rotate(-2deg);
+}
+
+.estado-local { margin-top: 8px; margin-bottom: 0; display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.estado-local::before {
+    content: ""; flex: none; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--sello); border: 2px solid var(--tinta);
+}
+.estado-local.abierto::before { background: var(--verde); }
+
+/* ============ Ticket (tarjeta de turno) ============ */
+.ticket {
+    position: relative;
+    background: var(--crema)ef6;
+    border: 2px solid var(--tinta);
+    border-radius: 6px;
+    padding: 26px 22px 18px 22px;
+    transform: rotate(1.6deg);
+}
+.ticket::before { /* cinta */
+    content: ""; position: absolute; top: -14px; left: 50%;
+    width: 96px; height: 28px; margin-left: -48px;
+    background: rgba(230, 198, 177, .92);
+    border: 1px solid rgba(26, 29, 36, .25);
+    transform: rotate(-3deg);
+}
+
+.ticket-cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+.ticket-marca { font-family: "Alfa Slab One", Georgia, serif; font-size: 1.15rem; }
+.ticket-numero { font-weight: 700; font-size: .95rem; }
+
+.ticket dl { margin: 0; }
+.ticket dt { font-size: .85rem; margin-top: 8px; color: #6b5a50; }
+.ticket dd {
+    margin: 0; min-height: 2rem; padding: 0 2px;
+    font-family: "Caveat", cursive; font-weight: 700; font-size: 1.55rem; line-height: 1.3;
+    border-bottom: 1.5px solid #b8a89b;
+    overflow-wrap: anywhere;
+}
+
+.ticket-pie {
+    margin-top: 18px; padding-top: 12px; border-top: 2px dashed var(--tinta);
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: .85rem;
+}
+.barras {
+    flex: none; width: 96px; height: 26px;
+    background: repeating-linear-gradient(90deg, var(--tinta) 0 2px, transparent 2px 4px, var(--tinta) 4px 5px, transparent 5px 8px, var(--tinta) 8px 11px, transparent 11px 13px);
+}
+
+.sello {
+    position: absolute; right: 14px; top: 64px;
+    font-family: "Alfa Slab One", Georgia, serif; font-size: 1.5rem;
+    color: var(--sello); border: 4px solid var(--sello); border-radius: 6px;
+    padding: 2px 12px; background: rgba(255, 250, 243, .88);
+    transform: rotate(-12deg);
+    opacity: 0; pointer-events: none;
+}
+.ticket.reservado .sello { opacity: 1; animation: sellar .35s ease-out; }
+
+@keyframes sellar {
+    from { transform: rotate(-12deg) scale(1.9); opacity: 0; }
+    to   { transform: rotate(-12deg) scale(1);   opacity: 1; }
+}
+
+/* ============ Pizarra con los veterinarios ============ */
+.pizarra {
+    background: var(--marron);
+    color: var(--crema);
+    border: 14px solid var(--malva);
+    border-radius: 10px;
+    padding: 28px 34px 22px 34px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, .35);
+}
+.pizarra-titulo { font-family: "Caveat", cursive; font-weight: 700; font-size: 2.6rem; margin: 0 0 8px 0; }
+
+.vets { list-style: none; margin: 0; padding: 0; }
+.vets li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px; padding: 14px 0; }
+.vets li + li { border-top: 1px dashed rgba(250, 244, 239, .35); }
+.vet-texto { flex: 1 1 320px; }
+.vet-linea { display: flex; align-items: baseline; gap: 10px; font-size: 1.25rem; }
+.vet-nombre { font-weight: 700; }
+.vet-puntos { flex: 1; border-bottom: 2px dotted rgba(250, 244, 239, .55); transform: translateY(-4px); min-width: 20px; }
+.vet-esp { font-family: "Caveat", cursive; font-size: 1.7rem; color: var(--durazno); line-height: 1; }
+.vet-detalle { margin: 4px 0 0 0; opacity: .9; }
+.pizarra-pie { margin: 10px 0 0 0; font-size: .95rem; opacity: .85; }
+
+.btn-chico {
+    min-width: 210px;
+    font: inherit; font-weight: 700; font-size: .95rem;
+    background: var(--terracota); color: var(--tinta);
+    border: 2px solid var(--tinta); border-radius: 6px; padding: 7px 14px; cursor: pointer;
+}
+.btn-chico:hover { background: var(--crema); }
+
+/* ============ Cómo funciona ============ */
+.como { max-width: 1100px; }
+.pasos { list-style: none; counter-reset: paso; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 24px 40px; }
+.pasos li { flex: 1 1 260px; max-width: 340px; position: relative; padding-left: 52px; }
+.pasos li::before {
+    counter-increment: paso; content: counter(paso);
+    position: absolute; left: 0; top: -2px;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--terracota); border: 2px solid var(--tinta);
+    font-family: "Alfa Slab One", Georgia, serif; text-align: center; line-height: 34px;
+}
+
+/* ============ Formulario ============ */
+.bajada { margin: 0 0 28px 0; max-width: 60ch; }
+
+.turno-layout { display: flex; flex-wrap: wrap; gap: 32px 40px; align-items: flex-start; }
+
+.formulario {
+    flex: 2 1 520px;
+    background: var(--crema);
+    border: 2px solid var(--tinta);
+    border-radius: 12px;
+    padding: 12px 28px 28px 28px;
+}
+
+fieldset { border: 0; margin: 0; padding: 18px 0 8px 0; min-width: 0; }
+fieldset + fieldset { border-top: 2px dashed #c4b3a4; }
+legend { font-size: 1.25rem; padding: 0; margin-bottom: 6px; float: left; width: 100%; }
+legend + * { clear: both; }
+
+.fila-campos { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: 10px; }
+.campo { flex: 1 1 140px; display: flex; flex-direction: column; min-width: 0; }
+.campo-ancho { flex: 2.4 1 220px; }
+.campo-corto { flex: 1 1 130px; }
+
+label { font-size: .95rem; font-weight: 700; margin-bottom: 4px; }
+
+input, select {
+    font: inherit;
+    width: 100%;
+    padding: 10px 12px;
+    background: #fffdfa;
+    color: var(--tinta);
+    border: 2px solid var(--tinta);
+    border-radius: 5px;
+}
+input::placeholder { color: #7d6d63; }
+select:disabled { background: #e6dacd; color: #7a6a60; }
+input[aria-invalid="true"], select[aria-invalid="true"] { border-color: var(--sello); background: var(--crema)4f2; }
+
+.error { color: var(--sello); font-weight: 700; font-size: .88rem; min-height: 1.1em; margin-top: 3px; }
+
+.envio { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 20px; }
+.boton-form { font-size: 1.05rem; padding: 14px 30px; }
+
+.mensaje { margin: 0; flex: 1 1 240px; font-weight: 700; }
+.mensaje.ok { color: var(--verde); }
+.mensaje.mal { color: var(--sello); }
+
+.lado-ticket { flex: 1 1 300px; max-width: 380px; margin: 14px auto 0 auto; position: sticky; top: 96px; }
+
+/* ============ Agenda ============ */
+.filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 20px; margin: 16px 0 18px 0; }
+.filtros .campo { flex: 0 1 220px; }
+.filtros .campo-ancho { flex: 1 1 260px; max-width: 380px; }
+.contador { margin: 0 0 8px 0; font-weight: 700; margin-left: auto; }
+
+.tabla-caja { position: relative; overflow-x: auto; background: var(--crema); border: 2px solid var(--tinta); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; }
+th, td { text-align: left; padding: 12px 14px; vertical-align: top; }
+thead th { background: var(--marron); color: var(--crema); font-size: .95rem; }
+tbody tr + tr td { border-top: 1px solid #e0d3c6; }
+tbody tr.pasado { color: #85766c; }
+.td-cuando { white-space: nowrap; font-weight: 700; }
+.td-chico { display: block; font-weight: 400; font-size: .88rem; color: #6b5a50; }
+.vacio { text-align: center; padding: 30px 14px; }
+
+.btn-cancelar {
+    font: inherit; font-size: .9rem; font-weight: 700;
+    background: var(--crema); color: var(--sello);
+    border: 2px solid var(--sello); border-radius: 5px; padding: 4px 10px; cursor: pointer;
+}
+.btn-cancelar:hover { background: var(--sello); color: var(--crema); }
+
+/* ============ Sala de espera ============ */
+.espera { display: flex; flex-wrap: wrap; align-items: center; gap: 28px 56px; padding-bottom: 64px; }
+.espera-texto { flex: 1 1 320px; max-width: 480px; }
+
+.polaroid {
+    margin: 0 auto; background: var(--crema); border: 2px solid var(--tinta);
+    padding: 14px 14px 10px 14px; transform: rotate(-2.5deg);
+    width: min(100%, 348px);
+}
+.polaroid img { display: block; width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; background: var(--junta); }
+.polaroid .foto-vacia { width: 100%; aspect-ratio: 1 / 1; background: var(--junta); }
+.polaroid figcaption { font-family: "Caveat", cursive; font-weight: 700; font-size: 1.6rem; text-align: center; padding-top: 6px; }
+
+/* ============ Pie ============ */
+.pie { background: var(--durazno-osc); color: var(--tinta); border-top: 2px solid var(--tinta); padding: 34px 0 28px 0; }
+.pie p { margin: 0 0 4px 0; }
+.pie a { color: var(--tinta); }
+.pie-interno { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 40px; }
+.pie-logo img { display: block; width: 170px; height: auto; }
+.pie-chico { font-size: .9rem; margin-top: 10px !important; color: var(--marron); }
+
+/* ============ Celular ============ */
+@media (max-width: 700px) {
+    body { font-size: 16px; }
+    h2 { font-size: 1.65rem; }
+    .chapa { padding: 40px 28px 32px 28px; }
+    .pizarra { padding: 20px 18px 16px 18px; border-width: 10px; }
+    .formulario { padding: 8px 18px 22px 18px; }
+    .ticket, .polaroid { transform: none; }
+    .lado-ticket { position: static; }
+    .vet-linea { font-size: 1.1rem; }
+    .contador { margin-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .ticket.reservado .sello { animation: none; }
+}
