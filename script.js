@@ -1,15 +1,6 @@
-/* =====================================================
-   PetCare - Vue 2 + axios
-   Misma idea que el sistema de turnos de Fundamentos:
-   clientes (con DNI único), mascotas, veterinarios y turnos.
-   Regla principal: un veterinario no puede tener dos turnos
-   en el mismo día y horario.
-   Solo data y methods (sin computed, watch ni componentes).
-   ===================================================== */
-
 const URL_GATOS = "https://api.thecatapi.com/v1/images/search";
 const CLAVE_GUARDADO = "petcare_estado_v1";
-
+ 
 const VETERINARIOS = [
     { id: "ramirez", nombre: "Dr. Ramírez", especialidad: "Clínica general",
       detalle: "Controles, vacunas, desparasitación y todo lo de todos los días." },
@@ -18,9 +9,9 @@ const VETERINARIOS = [
     { id: "gomez", nombre: "Dr. Gómez", especialidad: "Cirugía",
       detalle: "Castraciones, cirugías programadas y controles posteriores." }
 ];
-
+ 
 const ESPECIES = ["Perro", "Gato", "Conejo", "Ave", "Otra"];
-
+ 
 // franjas de atención por día de la semana (0 = domingo)
 const FRANJAS = {
     0: [],
@@ -31,36 +22,36 @@ const FRANJAS = {
     5: [[9, 13], [15, 19]],
     6: [[9, 13]]
 };
-
+ 
 const DIAS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
-
+ 
+ 
 // ---------- Funciones auxiliares (sin Vue) ----------
 function pad(n) {
     return String(n).padStart(2, "0");
 }
-
+ 
 function fecha_a_iso(d) {
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
 }
-
+ 
 function hoy_iso() {
     return fecha_a_iso(new Date());
 }
-
+ 
 function formatear_fecha(iso) {
     let partes = iso.split("-");
     return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
-
+ 
 function dia_de_semana(iso) {
     return new Date(iso + "T00:00:00").getDay();
 }
-
+ 
 function numero_turno(n) {
     return String(n).padStart(4, "0");
 }
-
+ 
 // primer día hábil a partir de "desde" días (para los datos de ejemplo)
 function dia_habil(desde) {
     let d = new Date();
@@ -70,7 +61,7 @@ function dia_habil(desde) {
     }
     return fecha_a_iso(d);
 }
-
+ 
 function horarios_del_dia(iso) {
     let horas = [];
     if (!iso) return horas;
@@ -82,29 +73,29 @@ function horarios_del_dia(iso) {
     });
     return horas;
 }
-
+ 
 function buscar_vet(id) {
     return VETERINARIOS.find(v => v.id === id);
 }
-
+ 
 function ticket_vacio(numero) {
     return { numero: numero, mascota: "", dueno: "", vet: "", cuando: "", motivo: "", reservado: false };
 }
-
-
+ 
+ 
 let appVue2 = new Vue({
     el: "#app",
     data: {
         veterinarios: VETERINARIOS,
         especies: ESPECIES,
-
+ 
         // "base de datos" en memoria
         clientes: [],
         mascotas: [],
         turnos: [],
         siguiente_id: 1,
         siguiente_turno: 1,
-
+ 
         // campos del formulario
         nombre: "",
         dni: "",
@@ -125,24 +116,24 @@ let appVue2 = new Vue({
         },
         mensaje: "",
         mensaje_tipo: "",
-
+ 
         // tarjetas de turno
         ticket_form: ticket_vacio("0001"),
         ticket_hero: ticket_vacio("0001"),
-
+ 
         // agenda
         filtro_vet: "",
         buscar: "",
-
+ 
         // gato al azar
         gato_url: "",
         gato_mensaje: "",
         gato_cargando: false,
-
+ 
         // horario del local
         local_texto: "",
         local_abierto: false,
-
+ 
         anio: new Date().getFullYear()
     },
     created: function() {
@@ -157,7 +148,7 @@ let appVue2 = new Vue({
         this.traer_gato();
     },
     methods: {
-
+ 
         // ---------- Guardado en el navegador ----------
         guardar_estado: function() {
             try {
@@ -213,7 +204,7 @@ let appVue2 = new Vue({
         nuevo_id: function() {
             return this.siguiente_id++;
         },
-
+ 
         // ---------- Tarjetas de turno ----------
         texto_cuando: function(fecha, hora) {
             if (!fecha) return "";
@@ -234,7 +225,11 @@ let appVue2 = new Vue({
             };
         },
         // la tarjeta del formulario se va escribiendo mientras completás los campos
-        actualizar_ticket: function() {
+        actualizar_ticket: function(evento) {
+            // En un <select> el navegador dispara "input" y después "change", pero v-model
+            // recién guarda el valor en "change". Si redibujáramos en "input", Vue pisaría
+            // la opción elegida con el valor viejo. Por eso los select se actualizan solo en "change".
+            if (evento && evento.type === "input" && evento.target.tagName === "SELECT") return;
             let vet = buscar_vet(this.veterinario);
             this.ticket_form = {
                 numero: numero_turno(this.siguiente_turno),
@@ -252,7 +247,7 @@ let appVue2 = new Vue({
             let proximo = this.turnos_ordenados().find(t => t.fecha >= hoy);
             this.ticket_hero = proximo ? this.datos_de_turno(proximo) : ticket_vacio(numero_turno(this.siguiente_turno));
         },
-
+ 
         // ---------- Veterinarios y horarios ----------
         elegir_veterinario: function(id) {
             this.veterinario = id;
@@ -286,7 +281,7 @@ let appVue2 = new Vue({
         horario_ocupado: function(vet_id, fecha, hora) {
             return this.turnos.some(t => t.veterinario_id === vet_id && t.fecha === fecha && t.hora === hora);
         },
-
+ 
         // ---------- Validación y reserva ----------
         limpiar_errores: function() {
             for (let campo in this.errores) {
@@ -299,16 +294,16 @@ let appVue2 = new Vue({
         validar: function() {
             let e = this.errores;
             let edad = Number(this.edad);
-
+ 
             if (this.nombre.trim().length < 3) e.nombre = "Escribí tu nombre y apellido.";
             if (!/^\d{7,8}$/.test(this.dni.trim())) e.dni = "El DNI tiene 7 u 8 números, sin puntos.";
             if (this.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) e.email = "Ese email no parece válido.";
             if (this.telefono.trim() && this.telefono.replace(/\D/g, "").length < 8) e.telefono = "Poné el teléfono con característica.";
-
+ 
             if (this.mascota.trim().length < 2) e.mascota = "Escribí el nombre de tu mascota.";
             if (!this.especie) e.especie = "Elegí la especie.";
             if (this.edad === "" || !Number.isInteger(edad) || edad < 0 || edad > 30) e.edad = "Poné una edad entre 0 y 30.";
-
+ 
             if (!this.veterinario) e.veterinario = "Elegí con quién querés atenderte.";
             if (!this.fecha) {
                 e.fecha = "Elegí un día.";
@@ -319,13 +314,13 @@ let appVue2 = new Vue({
             }
             if (!this.hora) e.hora = "Elegí un horario.";
             if (this.motivo.trim().length < 3) e.motivo = "Contanos brevemente por qué venís.";
-
+ 
             let orden = ["nombre", "dni", "email", "telefono", "mascota", "especie", "edad", "veterinario", "fecha", "hora", "motivo"];
             return orden.find(campo => e[campo] !== "") || "";
         },
         reservar_turno: function() {
             this.limpiar_errores();
-
+ 
             let primero = this.validar();
             if (primero) {
                 this.mensaje = "Revisá los campos marcados.";
@@ -333,13 +328,13 @@ let appVue2 = new Vue({
                 document.getElementById(primero).focus();
                 return;
             }
-
+ 
             if (this.horario_ocupado(this.veterinario, this.fecha, this.hora)) {
                 this.errores.hora = "Ese veterinario ya tiene un turno en ese horario.";
                 this.hora = "";
                 return;
             }
-
+ 
             // cliente: si el DNI ya existe lo reutilizamos
             let cliente = this.clientes.find(c => c.dni === this.dni.trim());
             let cliente_nuevo = false;
@@ -352,7 +347,7 @@ let appVue2 = new Vue({
                 cliente.email = this.email.trim() || cliente.email;
                 cliente.telefono = this.telefono.trim() || cliente.telefono;
             }
-
+ 
             // mascota: si ese dueño ya tiene una con ese nombre la reutilizamos
             let nombre_mascota = this.mascota.trim();
             let masc = this.mascotas.find(m => m.dueno_id === cliente.id && m.nombre.toLowerCase() === nombre_mascota.toLowerCase());
@@ -360,7 +355,7 @@ let appVue2 = new Vue({
                 masc = { id: this.nuevo_id(), nombre: nombre_mascota, especie: this.especie, edad: Number(this.edad), dueno_id: cliente.id };
                 this.mascotas.push(masc);
             }
-
+ 
             let turno = {
                 id: this.siguiente_turno++,
                 mascota_id: masc.id,
@@ -371,16 +366,16 @@ let appVue2 = new Vue({
             };
             this.turnos.push(turno);
             this.guardar_estado();
-
+ 
             // confirmación: la tarjeta queda sellada con lo que se reservó
             let resumen = this.datos_de_turno(turno);
             resumen.reservado = true;
             this.ticket_form = resumen;
-
+ 
             let saludo = cliente_nuevo ? "" : cliente.nombre.split(" ")[0] + ", ya te teníamos en el sistema. ";
             this.mensaje = saludo + "Turno Nº " + resumen.numero + " reservado para " + resumen.mascota + ", " + resumen.cuando + ".";
             this.mensaje_tipo = "ok";
-
+ 
             this.nombre = "";
             this.dni = "";
             this.email = "";
@@ -392,10 +387,10 @@ let appVue2 = new Vue({
             this.fecha = "";
             this.hora = "";
             this.motivo = "";
-
+ 
             this.actualizar_hero();
         },
-
+ 
         // ---------- Agenda ----------
         turnos_ordenados: function() {
             return this.turnos.slice().sort((a, b) => (a.fecha + a.hora).localeCompare(b.fecha + b.hora));
@@ -442,14 +437,14 @@ let appVue2 = new Vue({
             this.guardar_estado();
             this.actualizar_hero();
         },
-
+ 
         // ---------- Horario del local ----------
         calcular_estado_local: function() {
             let ahora = new Date();
             let minutos = ahora.getHours() * 60 + ahora.getMinutes();
             let hoy = ahora.getDay();
             this.local_abierto = false;
-
+ 
             for (let franja of FRANJAS[hoy]) {
                 if (minutos >= franja[0] * 60 && minutos < franja[1] * 60) {
                     this.local_abierto = true;
@@ -457,13 +452,13 @@ let appVue2 = new Vue({
                     return;
                 }
             }
-
+ 
             let proxima = FRANJAS[hoy].find(franja => minutos < franja[0] * 60);
             if (proxima) {
                 this.local_texto = "Ahora estamos cerrados. Hoy volvemos a las " + pad(proxima[0]) + ":00.";
                 return;
             }
-
+ 
             for (let i = 1; i <= 7; i++) {
                 let franjas = FRANJAS[(hoy + i) % 7];
                 if (franjas.length > 0) {
@@ -473,7 +468,7 @@ let appVue2 = new Vue({
                 }
             }
         },
-
+ 
         // ---------- Gato al azar (API externa con axios) ----------
         traer_gato: function() {
             this.gato_cargando = true;
